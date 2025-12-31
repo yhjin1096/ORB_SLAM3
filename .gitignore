@@ -64,6 +64,9 @@ Thirdparty/DBoW2/lib/
 Thirdparty/g2o/build/
 Thirdparty/g2o/config.h
 Thirdparty/g2o/lib/
+Thirdparty/opencv/
+Thirdparty/epoxy/
+Thirdparty/pangolin/
 Vocabulary/ORBvoc.txt
 build/
 
