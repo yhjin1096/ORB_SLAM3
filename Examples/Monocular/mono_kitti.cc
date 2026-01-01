@@ -21,6 +21,7 @@
 #include<fstream>
 #include<chrono>
 #include<iomanip>
+#include<signal.h>
 
 #include<opencv2/core/core.hpp>
 
@@ -30,6 +31,15 @@ using namespace std;
 
 void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
                 vector<double> &vTimestamps);
+
+// Signal handler를 위한 전역 변수
+ORB_SLAM3::System* pSLAM = nullptr;
+bool b_continue_session = true;
+
+void exit_loop_handler(int s){
+    cout << endl << "Interrupt signal received. Saving trajectory and shutting down..." << endl;
+    b_continue_session = false;
+}
 
 int main(int argc, char **argv)
 {
@@ -48,7 +58,15 @@ int main(int argc, char **argv)
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR,true);
+    pSLAM = &SLAM;
     float imageScale = SLAM.GetImageScale();
+
+    // Signal handler 등록 (Ctrl+C 처리)
+    struct sigaction sigIntHandler;
+    sigIntHandler.sa_handler = exit_loop_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+    sigaction(SIGINT, &sigIntHandler, NULL);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
@@ -65,6 +83,10 @@ int main(int argc, char **argv)
     cv::Mat im;
     for(int ni=0; ni<nImages; ni++)
     {
+        // Ctrl+C 체크
+        if(!b_continue_session)
+            break;
+
         // Read image from file
         im = cv::imread(vstrImageFilenames[ni],cv::IMREAD_UNCHANGED); //,cv::IMREAD_UNCHANGED);
         double tframe = vTimestamps[ni];
@@ -139,16 +161,22 @@ int main(int argc, char **argv)
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
     float totaltime = 0;
-    for(int ni=0; ni<nImages; ni++)
+    int processedImages = vTimesTrack.size();
+    for(int ni=0; ni<processedImages; ni++)
     {
         totaltime+=vTimesTrack[ni];
     }
     cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
+    if(processedImages > 0)
+    {
+        cout << "median tracking time: " << vTimesTrack[processedImages/2] << endl;
+        cout << "mean tracking time: " << totaltime/processedImages << endl;
+    }
+    cout << "Processed " << processedImages << " images" << endl;
 
     // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
+    SLAM.SaveKeyFrameTrajectoryTUM("/root/ORB_SLAM3/results/KeyFrameTrajectory.txt");
+    cout << "KeyFrame trajectory saved to: KeyFrameTrajectory.txt" << endl;
 
     return 0;
 }
