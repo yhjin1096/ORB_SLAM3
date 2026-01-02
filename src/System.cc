@@ -626,6 +626,16 @@ void System::SaveTrajectoryTUM(const string &filename)
     // cout << endl << "trajectory saved!" << endl;
 }
 
+vector<MapPoint*> System::GetAllMapPoints()
+{
+    return mpAtlas->GetAllMapPoints();
+}
+
+vector<KeyFrame*> System::GetAllKeyFrames()
+{
+    return mpAtlas->GetAllKeyFrames();
+}
+
 void System::SaveKeyFrameTrajectoryTUM(const string &filename)
 {
     cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
@@ -657,6 +667,45 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
     }
 
     f.close();
+    cout << "Trajectory saved!" << endl;
+}
+
+void System::SaveKeyFrameTrajectoryTUM(const string &filename, float scaleFactor)
+{
+    cout << endl << "Saving keyframe trajectory to " << filename << " (scale = " << scaleFactor << ") ..." << endl;
+
+    
+    
+
+    // Transform all keyframes so that the first keyframe is at the origin.
+    // After a loop closure the first keyframe might not be at the origin.
+    ofstream f;
+    f.open(filename.c_str());
+    f << fixed;
+
+    for(size_t i=0; i<vpKFs.size(); i++)
+    {
+        KeyFrame* pKF = vpKFs[i];
+
+       // pKF->SetPose(pKF->GetPose()*Two);
+
+        if(pKF->isBad())
+            continue;
+
+        Sophus::SE3f Twc = pKF->GetPoseInverse();
+        Eigen::Quaternionf q = Twc.unit_quaternion();
+        Eigen::Vector3f t = Twc.translation();
+        
+        // Apply scale factor to translation
+        t *= scaleFactor;
+        
+        f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t(0) << " " << t(1) << " " << t(2)
+          << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
+
+    }
+
+    f.close();
+    cout << "Trajectory saved with scale factor " << scaleFactor << "!" << endl;
 }
 
 void System::SaveTrajectoryEuRoC(const string &filename)

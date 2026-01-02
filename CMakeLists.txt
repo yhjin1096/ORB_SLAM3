@@ -80,6 +80,7 @@ src/OptimizableTypes.cpp
 src/MLPnPsolver.cpp
 src/GeometricTools.cc
 src/TwoViewReconstruction.cc
+src/GroundPlaneDetector.cc
 src/Config.cc
 src/Settings.cc
 include/System.h
@@ -109,6 +110,7 @@ include/OptimizableTypes.h
 include/MLPnPsolver.h
 include/GeometricTools.h
 include/TwoViewReconstruction.h
+include/GroundPlaneDetector.h
 include/SerializationUtils.h
 include/Config.h
 include/Settings.h)
@@ -196,6 +198,10 @@ target_link_libraries(mono_tum ${PROJECT_NAME})
 add_executable(mono_kitti
         Examples/Monocular/mono_kitti.cc)
 target_link_libraries(mono_kitti ${PROJECT_NAME})
+
+add_executable(mono_scale_kitti
+        Examples/Monocular/mono_scale_kitti.cpp)
+target_link_libraries(mono_scale_kitti ${PROJECT_NAME})
 
 add_executable(mono_euroc
         Examples/Monocular/mono_euroc.cc)

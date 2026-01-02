@@ -151,6 +151,15 @@ public:
     // Call first Shutdown()
     // See format details at: http://vision.in.tum.de/data/datasets/rgbd-dataset
     void SaveKeyFrameTrajectoryTUM(const string &filename);
+    
+    // Save keyframe trajectory with scale factor applied
+    void SaveKeyFrameTrajectoryTUM(const string &filename, float scaleFactor);
+
+    // Get all map points from atlas
+    std::vector<MapPoint*> GetAllMapPoints();
+
+    // Get all keyframes from atlas
+    std::vector<KeyFrame*> GetAllKeyFrames();
 
     void SaveTrajectoryEuRoC(const string &filename);
     void SaveKeyFrameTrajectoryEuRoC(const string &filename);
