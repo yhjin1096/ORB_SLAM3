@@ -112,3 +112,20 @@
 5. **Iterative Refinement**: RANSAC 후 최대 30회 반복하여 평면 개선
 6. **Median Filter**: 모든 키프레임의 scale 중 중앙값 사용
 7. **단일 Scale 적용**: 모든 키프레임에 동일한 최종 scale 적용
+
+## 사용 방법
+
+scale 적용 및 keyframe trajectory 저장
+```cpp
+./run_kitti_scale.sh
+```
+
+gt, scale 미적용, scale 적용 결과 trajectory 비교
+```cpp
+./run_eval_traj.sh
+```
+
+gt, scale 적용 결과 평가
+```cpp
+./run_eval_ape.sh
+```
